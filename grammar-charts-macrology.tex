@@ -1,0 +1,175 @@
+%!TEX root = ./grammar-charts.tex
+%%
+%% Miscellaneous macrology.
+%%
+
+%% The new xparse package doesn’t have something built in to test if
+%% something is either -NoValue- or just empty, but it’s easy enough to
+%% implement, so here we go.
+%%
+%% FIXME: Detect if this is defined elsewhere, in case someone else
+%% implements this obvious function.
+\ExplSyntaxOn
+\ProvideExpandableDocumentCommand \IfNoValueOrEmptyTF {mmm}
+ 	{\IfNoValueTF{#1}{#2}
+		{\tl_if_empty:nTF {#1} {#2} {#3}}}
+\ExplSyntaxOff
+
+%% Italicized linguistic forms appearing in text.
+%%
+%% The \fm@cmd command does the underlying formatting.
+%% This just calls LaTeX \emph which does the right thing, but it can be replaced.
+\makeatletter
+\ProvideDocumentCommand \fm@cmd { m } {\emph{#1}}
+%% The \fm command is the user interface.
+%%
+%%  arg 1: star
+%%    This wraps everything in an mbox to prevent line breaking
+%%    because hyphenation can get ugly especially for suffixes.
+%%  arg 2: stigma
+%%    An optional argument to appear before the form. This can be a
+%%    star (asterisk) since it is always a square bracket argument.
+%%  arg 3: body of linguistic form
+\ProvideDocumentCommand \fm { s O{} m } {%
+	\IfBooleanTF{#1}%
+		{\mbox{#2\fm@cmd{#3}}}
+		{#2\nobreak\fm@cmd{#3}}}
+
+%% Gloss abbreviations.
+%%
+%% NOTE: Requires document authors to define \glossfont usefully.
+%%
+%% \xx{} is used for abbreviations in text, \zz{} is used for abbreviations in
+%% glosses. The latter uses a condensed font so that it takes up less space.
+%%
+%% Screw people who don’t like two letter macros. These are mine and I don’t
+%% care one whit about your namespace.
+%%
+%% FIXME: Detect lack of \glossfont and print a warning.
+%% FIXME: Detect lack of \scshape and print a warning. This is much harder.
+\ProvideDocumentCommand \xx { m } {\textsc{#1}}
+\ProvideDocumentCommand \zz { m } {{\glossfont\textsc{#1}}}
+
+%% Slashed zero for the nul or zero symbol.
+%%
+%% The \texorpdfstring macro from hyperref should convert the printed
+%% form (some flavour of U+0030 Digit Zero) into the real null symbol
+%% character (U+2205 Empty Set) for the PDF text stream that is given
+%% with cut-and-paste and in PDF bookmarks. The first argument of
+%% the \texorpdfstring macro is the visual representation, the second is
+%% the text stream representation. Put that in your presentation forms
+%% pipe and smoke it.
+%%
+%% If \zerofont is undefined then we just hope for the best and use U+2205.
+\@ifundefined{zerofont}%
+	{\ProvideDocumentCommand \nul { } {∅}}
+	%% Else \texorpdfstring is defined by the hyperref package. If not,
+	%% then we just define \nul without it.
+	{\@ifundefined{texorpdfstring}%
+		% Just do the \zerofont.
+		{\ProvideDocumentCommand \nul { } {{\zerofont 0}}}
+		% Use \texorpdfstring.
+		% FIXME: Using \ProvideDocumentCommand doesn’t work here. Why?
+		{\newcommand{\nul}{\texorpdfstring{{\zerofont 0}}{∅}}}}
+
+%% Root as a symbol.
+%%
+%% This smashes the root into a 1em vertical box, adding slight whitespace on the right.
+\ProvideDocumentCommand \rtsym {} {\raisebox{0pt}[0.75em][0.25em]{√\!}}
+
+%% Roots.
+%%
+%% The root symbol (U+221A Square Root) in many fonts is taller than
+%% the usual cap or ascender height. This \raisebox hack sticks the
+%% root into a zero-height box so that it doesn’t cause an increase
+%% in leading. Since this symbol often has an excessively large right
+%% sidebearing for our purposes because of the angle of the ascender,
+%% the negative horizontal space in \rtkern kerns the following
+%% letters a bit more closely.
+%%
+%% The optional argument is meant for a superscript number like ² that
+%% indicates the valency of the root. The superscript is rlapped so
+%% that it appears above the vee of the root symbol. Since this never
+%% works properly, a \raisebox moves the superscript around to get in
+%% the right spot. This can be configured using the \rtsuplift length.
+%% The \raisebox for the superscript has zero height and depth so it
+%% doesn't screw up other spacing.
+\newlength{\rtkern}
+\setlength{\rtkern}{-0.0625ex}
+\newlength{\rtsuplift}
+\setlength{\rtsuplift}{0.66ex}
+\ProvideDocumentCommand \rt { o m } {%
+	\IfNoValueOrEmptyTF{#1}{}%
+	{\raisebox{\rtsuplift}[0pt][0pt]{\rlap{\unspace#1\unspace}}}%
+	\raisebox{0pt}[0pt][0pt]{√}\hspace*{\rtkern}#2}
+%% This command allows the root to hang on the left side. It
+%% is meant for column labels where the root symbol otherwise
+%% visually misaligns the column label with the rest of the column.
+%% Note that the \rt{} command still applies \rtkern despite \llap.
+\ProvideDocumentCommand \rtlap { m } {\llap{\rt{}}#1}
+
+%% The Brill font doesn’t need its roots kerned.
+\setlength{\rtkern}{0pt}
+
+%% Notes for later changes.
+\newlength{\dblbrackkern}
+\setlength{\dblbrackkern}{-0.325ex}
+\ProvideDocumentCommand \dblbrackleft {} {⟦}
+\ProvideDocumentCommand \dblbrackright {} {⟧}
+\ProvideDocumentCommand \FIXME { +m }
+	{\mbox{\dblbrackleft}\textsc{Fixme}: #1\mbox{\dblbrackright}}
+
+%% Example comments.
+\ProvideDocumentCommand \excmt { m } {\emph{#1}}
+
+%% Hanging right example comments.
+%% 
+%% This depends on \rightcomment{} in ExPex.
+\ProvideDocumentCommand \exrtcmt { m } {\rightcomment{\emph{#1}}}
+
+%% Phrase labels.
+%%
+%% FIXME: Provide star to toggle fake subscripts or real ones. This
+%% should be the inverse of the star for \textsubscript.
+\ProvideDocumentCommand \pr { m } {\textsubscript*{#1}}
+
+%% Phantom (invisible) hyphens for alignment in examples.
+\ProvideDocumentCommand \· {} {\phantom{-}}
+
+%% Phantom (invisible) equals signs for alignment in examples.
+\ProvideDocumentCommand \• {} {\phantom{=}}
+
+%% Hanging = for proclitics in tables.
+\DeclareDocumentCommand {\≠} {} {\rlap{=}}
+
+%% Hanging * for ungrammatical/reconstructed in tables.
+\DeclareDocumentCommand {\*} {} {\llap{*}}
+
+%% Hanging superscript † for ungrammatical/reconstructed in tables.
+\DeclareDocumentCommand {\†} {} {\llap{\textsuperscript*{†}}}
+
+%% Use the plain tilde character.
+\DeclareTextSymbol {\texttilde} {TU} {"007E}
+\RenewDocumentCommand {\~} {} {\char`~}
+
+%% Command to force lining numerals instead of old style.
+\ProvideDocumentCommand \liningnumerals {m}
+	{\begingroup\addfontfeatures{Letters=Uppercase,Numbers=Lining}#1\endgroup}
+
+%% Verb lexical entry.
+\ProvideDocumentCommand \vblex { m m m m }
+	{\IfNoValueOrEmptyTF{#1}{}{\fm{#1} }(\IfNoValueOrEmptyTF{#2}{}{\fm{#2}; }#3) ‘#4’}
+
+%% Verb lexical entry in examples.
+\ProvideDocumentCommand \exvblex { s m m m m }
+	{\IfBooleanTF{#1}{}{\newline}\footnotesize\vblex{#2}{#3}{#4}{#5}\normalsize}
+
+%% Binominal species names.
+\ProvideDocumentCommand \species { s m m o} 
+	{\textit{#2}~\textit{#3}\IfNoValueOrEmptyTF{#4}{}{~\IfNoValueTF{#1}{(}{}#4\IfNoValueTF{#1}{)}{}}}
+
+%% Some memoir configuration for marginal notes.
+\marginparmargin{right}
+\setmarginnotes{1ex}{4em}{0.5ex}
+%% Margin note for example number.
+\DeclareDocumentCommand {\exmn} {m} {\marginpar{\footnotesize{}(#1)}}

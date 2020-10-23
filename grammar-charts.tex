@@ -1,0 +1,106 @@
+%!TEX TS-program = xelatex
+%!TEX encoding = UTF-8 Unicode
+% The cruft above tells TeX editors (e.g. TeXShop) what this file contains.
+
+%% Only tested with XeLaTeX.
+%\RequireXeTeX
+
+%% Unicode normalization of input text.
+%%  0: no normalization (default)
+%%  1: normalize to NFC
+%%  2: normalize to NFD
+\XeTeXinputnormalization 1
+
+%% FIle prefix.
+%% This is the unchanging part of all file names for this document.
+\def \FILEPREFIX {grammar-charts}
+
+%% The Memoir class.
+%% The manual is memman.pdf.
+\documentclass[12pt,letterpaper,landscape,oneside,article]{memoir}
+
+%% LaTeX3 command parsing.
+%% Should be used by all modern, right thinking LaTeX programmers.
+\usepackage{xparse}
+
+%%%
+%%% Memoir configuration.
+%%%
+
+\input{\FILEPREFIX-memconf}
+
+%%%
+%%% Font configuration.
+%%%
+
+\input{\FILEPREFIX-fonts}
+\input{\FILEPREFIX-fonts-symbols}
+
+%%%
+%%% Bibliography configuration.
+%%%
+
+\input{\FILEPREFIX-bib}
+
+%%%
+%%% Example and glossing configuration.
+%%%
+
+\input{\FILEPREFIX-expex}
+
+%%%
+%%% Other packages.
+%%%
+\input{\FILEPREFIX-other}
+
+%%%
+%%% Hyperlinks and crossreferences.
+%%%
+
+\input{\FILEPREFIX-hyper}
+
+%%%
+%%% Miscellaneous macrology.
+%%%
+
+\input{\FILEPREFIX-macrology}
+
+%%%
+%%% Includeonlies.
+%%%
+
+%% These determine which files to include.
+%% Uncomment one line to include only that file.
+%\includeonly{sections/grammar-charts-01-introduction}
+%\includeonly{sections/grammar-charts-02-aspects}
+%\includeonly{sections/grammar-charts-03-motion-derivations}
+%\includeonly{sections/grammar-charts-04-preverbs}
+%\includeonly{sections/grammar-charts-05-directionals}
+%\includeonly{sections/grammar-charts-06-incorporates}
+
+%%%
+%%% The document.
+%%%
+\begin{document}
+\pagestyle{mine}
+
+\title{Tlingit grammatical charts}
+\author{\textit{Dzéiwsh} James A.\ Crippen}
+\maketitle
+
+\begin{KeepFromToc}
+\tableofcontents
+\listoftables
+\end{KeepFromToc}
+
+\include{sections/grammar-charts-01-introduction}
+\include{sections/grammar-charts-02-aspects}
+\include{sections/grammar-charts-03-motion-derivations}
+\include{sections/grammar-charts-04-preverbs}
+\include{sections/grammar-charts-05-directionals}
+\include{sections/grammar-charts-06-incorporates}
+
+\raggedyright
+\nocite{*}
+\printbibliography[heading=subbibliography]\label{sec:bibliography}
+\end{document}
